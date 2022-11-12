@@ -6,10 +6,12 @@ public class Racer extends Thread {
 	
 	private int distance;
 	private int racerNumber;
+	private RaceMenu raceMenu;
 	
-	public Racer(int distance, int racerNumber) {
+	public Racer(RaceMenu raceMenu, int distance, int racerNumber) {
 		this.distance = distance;
 		this.racerNumber = racerNumber;
+		this.raceMenu = raceMenu;
 	}
 	
 	@Override
@@ -22,8 +24,8 @@ public class Racer extends Thread {
 				e.printStackTrace();
 			}
 		}
-		if(RaceMenu.winnerNumber == 0) {
-			RaceMenu.winnerNumber = racerNumber;
+		if(raceMenu.winnerNumber == 0) {
+			raceMenu.winnerNumber = racerNumber;
 		}
 	}
 	

@@ -31,7 +31,7 @@ public class Menu implements Item {
 		while(true) {
 			try {
 				displayMenu(io);
-				int itemNumber = io.readInt("Enter number of menu item", "Wrong item number", 1, items.size());
+				int itemNumber = io.readInt("enter number of menu item", "Wrong item number", 1, items.size());
 				Item item = items.get(itemNumber - 1);
 				item.perform(io);
 				if(item.isExit()) {
