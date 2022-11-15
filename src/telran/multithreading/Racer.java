@@ -17,12 +17,12 @@ public class Racer extends Thread {
 	@Override
 	public void run() {
 		for (int i = 0; i < distance; i++) {
-			System.out.println(racerNumber);
 			try {
 				sleep(new Random().nextInt(4) + 2);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			System.out.println(racerNumber);
 		}
 		if(raceMenu.winnerNumber == 0) {
 			raceMenu.winnerNumber = racerNumber;
