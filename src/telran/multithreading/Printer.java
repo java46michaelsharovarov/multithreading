@@ -2,7 +2,7 @@ package telran.multithreading;
 
 public class Printer extends Thread {
 	
-	private static final long TIMEOUT = 1000;
+	private static final long TIMEOUT = Long.MAX_VALUE;
 	private static final int N_NUMBERS = 100;
 	private static final int N_PORTIONS = 10;
 	private int printerNumber;
@@ -24,7 +24,7 @@ public class Printer extends Thread {
 			try {
 				sleep(TIMEOUT);
 			} catch (InterruptedException e) {
-				portionPrinting();
+				System.out.println(Integer.toString(printerNumber).repeat(N_PORTIONS));
 				index++;
 				nextPrinter.interrupt();
 				if(index == numberOfLines) {
@@ -32,13 +32,6 @@ public class Printer extends Thread {
 				}
 			}
 		}
-	}
-
-	private void portionPrinting() {
-		for(int i = 0; i < N_PORTIONS; i++) {
-			System.out.print(printerNumber);
-		}
-		System.out.println();
 	}
 	
 }

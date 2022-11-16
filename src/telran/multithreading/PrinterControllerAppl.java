@@ -1,12 +1,14 @@
 package telran.multithreading;
 
+import java.util.Arrays;
+
 public class PrinterControllerAppl {
 	
 	private static final int N_PRINTERS = 4;
 
 	public static void main(String[] args) {
-		Printer[] printers = createPrinters();		
-		startPrinters(printers);		
+		Printer[] printers = createPrinters();	
+		Arrays.stream(printers).forEach(Thread::start);
 		printers[0].interrupt();
 	}
 
@@ -21,12 +23,6 @@ public class PrinterControllerAppl {
 			}
 		}
 		return printers;
-	}
-
-	private static void startPrinters(Printer[] printers) {
-		for(int i = 0; i < N_PRINTERS; i++) {
-			printers[i].start();
-		}
 	}
 	
 }
