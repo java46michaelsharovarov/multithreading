@@ -18,10 +18,8 @@ public class PrinterControllerAppl {
 		for(int i = 1; i < N_PRINTERS; i++) {
 			printers[i] = new Printer(i + 1);
 			printers[i - 1].setNextPrinter(printers[i]);
-			if(i == N_PRINTERS - 1) {
-				printers[i].setNextPrinter(printers[0]);
-			}
 		}
+		printers[N_PRINTERS - 1].setNextPrinter(printers[0]);
 		return printers;
 	}
 	

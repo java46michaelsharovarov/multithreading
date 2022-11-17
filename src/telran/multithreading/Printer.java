@@ -19,17 +19,14 @@ public class Printer extends Thread {
 	
 	@Override
 	public void run() {
-		int index = 0;
-		while(true) {			
+		int countOfLines = 0;
+		while(countOfLines < numberOfLines) {			
 			try {
 				sleep(TIMEOUT);
 			} catch (InterruptedException e) {
 				System.out.println(Integer.toString(printerNumber).repeat(N_PORTIONS));
-				index++;
+				countOfLines++;
 				nextPrinter.interrupt();
-				if(index == numberOfLines) {
-					break;
-				}
 			}
 		}
 	}
