@@ -10,10 +10,8 @@ public class RaceMenu {
 	private static final int MAX_NUMBER_OF_RASERS = 10;
 	private static final int MIN_DISTANCE = 100;
 	private static final int MAX_DISTANCE = 3500;
-	int place;
 	private int numberOfRacers;
 	private int distance;
-	Instant startTime;
 
 	public RaceMenu() {
 		this.numberOfRacers = MIN_NUMBER_OF_RACERS;
@@ -28,9 +26,7 @@ public class RaceMenu {
 	private Item[] getItems() {
 		Item[] res = {
 			Item.of("Start the race", io -> {
-				place = 0;		
-				System.out.println();	
-				System.out.println("place  racer number   time");
+				System.out.println("\nplace  racer number   time");
 				startRace(io);	
 			}),
 			Item.of("Change the number of racers", this::changeNumberOfRacers, true),
@@ -46,22 +42,26 @@ public class RaceMenu {
 	}
 	
 	private void changeNumberOfRacers(InputOutput io) {
-		numberOfRacers  = io.readInt("enter number of racers (3 - 10)", "no number",
+		numberOfRacers  = io.readInt("enter number of racers (" + MIN_NUMBER_OF_RACERS
+				+ " - " + MAX_NUMBER_OF_RASERS + ")", "no number",
 				MIN_NUMBER_OF_RACERS, MAX_NUMBER_OF_RASERS);
 		getRaceMenu().perform(new ConsoleInputOutput());
 	}
 	
 	private void changeDistance(InputOutput io) {
-		distance  = io.readInt("enter distance (100 - 3500)", "no number",
+		distance  = io.readInt("enter distance (" + MIN_DISTANCE 
+				+ " - " + MAX_DISTANCE + ")", "no number",
 				MIN_DISTANCE, MAX_DISTANCE);
 		getRaceMenu().perform(new ConsoleInputOutput());
 	}
 	
 	public void startRace(InputOutput io) {
 		Racer[] racers = new Racer[numberOfRacers];
+		Racer.place = 0;	
+		Racer.distance = distance;
+		Racer.startTime = Instant.now();
 		IntStream.range(0, numberOfRacers).forEach(i -> {
-			racers[i] = new Racer(this, distance, i + 1);
-			startTime = Instant.now();
+			racers[i] = new Racer(i + 1);
 			racers[i].start();
 		});
 		Arrays.stream(racers).forEach(racer -> {

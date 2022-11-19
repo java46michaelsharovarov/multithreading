@@ -7,15 +7,15 @@ import java.util.stream.IntStream;
 
 public class Racer extends Thread {
 	
-	private int distance;
+	static int distance;
+	static Instant startTime;
+	static int place;
+	private static final Object mutex = new Object();
 	private int racerNumber;
-	private RaceMenu raceMenu;
-	long runningTime;
+	private long runningTime;
 	
-	public Racer(RaceMenu raceMenu, int distance, int racerNumber) {
-		this.distance = distance;
+	public Racer(int racerNumber) {
 		this.racerNumber = racerNumber;
-		this.raceMenu = raceMenu;
 	}
 	
 	@Override
@@ -27,9 +27,35 @@ public class Racer extends Thread {
 				e.printStackTrace();
 			}
 		});
-		runningTime = ChronoUnit.MILLIS.between(raceMenu.startTime, Instant.now());
-		raceMenu.place = ++raceMenu.place;
-		System.out.printf("  %d         %d         %d\n", raceMenu.place, racerNumber, runningTime);
+		assigningPlace();
+	}
+
+	private void assigningPlace() {
+		synchronized (mutex) {
+			runningTime = ChronoUnit.MILLIS.between(startTime, Instant.now());
+			place += 1;
+			placePrinting();
+		}
+	}
+
+	private void placePrinting() {
+		if(racerNumber > 9 && place > 9) {
+			printingLineWithIndents(8, 8);
+		} else if(racerNumber > 9) {
+			printingLineWithIndents(9, 8);
+		} else if(place > 9) {
+			printingLineWithIndents(8, 9);
+		} else {
+			printingLineWithIndents(9, 9);
+		}
+	}
+
+	private void printingLineWithIndents(int firstIndent, int secondIndent) {
+		System.out.printf("  %d", place);
+		System.out.printf(" ".repeat(firstIndent));
+		System.out.printf("%d", racerNumber);
+		System.out.printf(" ".repeat(secondIndent));
+		System.out.printf("%d\n", runningTime);
 	}
 	
 }
