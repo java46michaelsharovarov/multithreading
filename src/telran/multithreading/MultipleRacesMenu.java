@@ -1,6 +1,7 @@
 package telran.multithreading;
 
 import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 public class MultipleRacesMenu {	
 	
@@ -19,27 +20,24 @@ public class MultipleRacesMenu {
 	}
 
 	public static void fillInRacesMenus() {
-		for(int i = 0; i < numberOfRacers; i++) {
-			raceMenus.add(races.get(i).getRaceMenu());
-		}
+		IntStream.range(0, numberOfRacers)
+		.forEach(i -> raceMenus.add(races.get(i).getRaceMenu()));
 		raceMenus.add(Item.of("Start Races", MultipleRacesMenu::startRaces));
 		raceMenus.add(Item.exit());
 	}
 
 	private static void fillInRaces() {
-		for(int i = 0; i < numberOfRacers; i++) {
-			races.add(new RaceMenu());
-		}
+		IntStream.range(0, numberOfRacers)
+		.forEach(i -> races.add(new RaceMenu()));
 	}
 	
 	private static void startRaces(InputOutput io) {		
 		for(int i = 0; i < numberOfRacers; i++) {
-			races.get(i).winnerNumber = 0;
+			races.get(i).place = 0;	
+			System.out.println();	
+			System.out.printf("#%d %s\n",i + 1, races.get(i).getRaceMenu().displayName());		
+			System.out.println("place  racer number   time");			
 			races.get(i).startRace(io);
-		}
-		for(int i = 0; i < numberOfRacers; i++) {
-			System.out.printf("In race %d. Congratulations to racer #%d (winner)!!!\n",
-					i + 1, races.get(i).winnerNumber);
 		}
 	}
 }

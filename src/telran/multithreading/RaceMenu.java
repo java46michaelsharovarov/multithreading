@@ -1,14 +1,19 @@
 package telran.multithreading;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
 public class RaceMenu {
 	
 	private static final int MIN_NUMBER_OF_RACERS = 3;
 	private static final int MAX_NUMBER_OF_RASERS = 10;
 	private static final int MIN_DISTANCE = 100;
 	private static final int MAX_DISTANCE = 3500;
-	int winnerNumber;
+	int place;
 	private int numberOfRacers;
 	private int distance;
+	Instant startTime;
 
 	public RaceMenu() {
 		this.numberOfRacers = MIN_NUMBER_OF_RACERS;
@@ -23,9 +28,10 @@ public class RaceMenu {
 	private Item[] getItems() {
 		Item[] res = {
 			Item.of("Start the race", io -> {
-				winnerNumber = 0;
-				startRace(io);				
-				System.out.printf("Congratulations to racer #%d (winner)!!!\n", winnerNumber);
+				place = 0;		
+				System.out.println();	
+				System.out.println("place  racer number   time");
+				startRace(io);	
 			}),
 			Item.of("Change the number of racers", this::changeNumberOfRacers, true),
 			Item.of("Change the distance", this::changeDistance, true),
@@ -53,16 +59,17 @@ public class RaceMenu {
 	
 	public void startRace(InputOutput io) {
 		Racer[] racers = new Racer[numberOfRacers];
-		for(int i = 0; i < numberOfRacers; i++) {
+		IntStream.range(0, numberOfRacers).forEach(i -> {
 			racers[i] = new Racer(this, distance, i + 1);
+			startTime = Instant.now();
 			racers[i].start();
-		}
-		for(Racer racer : racers) {
+		});
+		Arrays.stream(racers).forEach(racer -> {
 			try {
 				racer.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
+		});
 	}
 }
