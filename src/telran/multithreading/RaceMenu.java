@@ -26,7 +26,7 @@ public class RaceMenu {
 	private Item[] getItems() {
 		Item[] res = {
 			Item.of("Start the race", io -> {
-				System.out.println("\nplace  racer number   time");
+				System.out.println("\nplace\tracer number\ttime");
 				startRace(io);	
 			}),
 			Item.of("Change the number of racers", this::changeNumberOfRacers, true),

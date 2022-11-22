@@ -34,28 +34,8 @@ public class Racer extends Thread {
 		synchronized (mutex) {
 			runningTime = ChronoUnit.MILLIS.between(startTime, Instant.now());
 			place += 1;
-			placePrinting();
+			System.out.printf("%3d\t%7d\t\t%d\n", place, racerNumber, runningTime);
 		}
-	}
-
-	private void placePrinting() {
-		if(racerNumber > 9 && place > 9) {
-			printingLineWithIndents(8, 8);
-		} else if(racerNumber > 9) {
-			printingLineWithIndents(9, 8);
-		} else if(place > 9) {
-			printingLineWithIndents(8, 9);
-		} else {
-			printingLineWithIndents(9, 9);
-		}
-	}
-
-	private void printingLineWithIndents(int firstIndent, int secondIndent) {
-		System.out.printf("  %d", place);
-		System.out.printf(" ".repeat(firstIndent));
-		System.out.printf("%d", racerNumber);
-		System.out.printf(" ".repeat(secondIndent));
-		System.out.printf("%d\n", runningTime);
 	}
 	
 }
