@@ -23,13 +23,20 @@ public class Worker extends Thread {
 			}
 		}
 	}
+
 	void f3() {
 		synchronized (resource2) {
-			synchronized (resource3) {
-				// any code
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			synchronized (resource1) {
+				// any code				
 			}
 		}
 	}
+
 	@Override
 	public void run() {
 		for (int i = 0; i < nRuns; i++) {
