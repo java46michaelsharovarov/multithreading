@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 public class FermAppl {
 
 	private static final int N_TRUCKS = 2000;
-	private static final int N_LOADS = 5000;
+	private static final int N_LOADS = 50000;
 
 	public static void main(String[] args) {
 		Truck[] trucks = new Truck[N_TRUCKS];
