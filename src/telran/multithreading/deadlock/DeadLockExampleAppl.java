@@ -1,4 +1,4 @@
-package telran.multithreading;
+package telran.multithreading.deadlock;
 
 import java.util.stream.IntStream;
 

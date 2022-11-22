@@ -1,4 +1,4 @@
-package telran.multithreading;
+package telran.multithreading.deadlock;
 
 public class Worker extends Thread {
 	static Object resource1 = new Object();
@@ -10,7 +10,6 @@ public class Worker extends Thread {
 		synchronized (resource1) {
 			synchronized (resource2) {
 				synchronized (resource3) {
-					// any code
 				}
 			}
 		}
@@ -19,20 +18,34 @@ public class Worker extends Thread {
 	void f2() {
 		synchronized (resource1) {
 			synchronized (resource3) {
-				// any code
 			}
 		}
 	}
 
+/**************** Solution with the addition of code ****************/		
 	void f3() {
+		synchronized (resource2) {
+			synchronized (resource3) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				synchronized (resource1) {
+				}			
+			}
+		}
+	}
+
+/******************** Solution with code change  ********************/	
+	void f4() {
 		synchronized (resource2) {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}
+			}		
 			synchronized (resource1) {
-				// any code				
 			}
 		}
 	}
@@ -43,6 +56,7 @@ public class Worker extends Thread {
 			f1();
 			f2();
 			f3();
+			f4();
 		}
 	}
 }
