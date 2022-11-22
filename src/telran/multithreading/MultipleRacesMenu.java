@@ -33,7 +33,6 @@ public class MultipleRacesMenu {
 	
 	private static void startRaces(InputOutput io) {		
 		for(int i = 0; i < numberOfRacers; i++) {
-			Racer.place = 0;	
 			System.out.println();	
 			System.out.printf("#%d %s\n",i + 1, races.get(i).getRaceMenu().displayName());		
 			System.out.println("place  racer number   time");			

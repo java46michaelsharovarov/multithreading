@@ -9,13 +9,13 @@ public class Racer extends Thread {
 	
 	static int distance;
 	static Instant startTime;
-	static int place;
-	private static final Object mutex = new Object();
 	private int racerNumber;
 	private long runningTime;
+	private RaceMenu race;
 	
-	public Racer(int racerNumber) {
+	public Racer(int racerNumber, RaceMenu race) {
 		this.racerNumber = racerNumber;
+		this.race = race;
 	}
 	
 	@Override
@@ -31,11 +31,18 @@ public class Racer extends Thread {
 	}
 
 	private void assigningPlace() {
-		synchronized (mutex) {
+		synchronized (Racer.class) {
 			runningTime = ChronoUnit.MILLIS.between(startTime, Instant.now());
-			place += 1;
-			System.out.printf("%3d\t%7d\t\t%d\n", place, racerNumber, runningTime);
+			race.resultsTable.add(this);
 		}
+	}
+
+	public int getRacerNumber() {
+		return racerNumber;
+	}
+
+	public long getRunningTime() {
+		return runningTime;
 	}
 	
 }

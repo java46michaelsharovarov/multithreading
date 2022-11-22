@@ -1,17 +1,20 @@
 package telran.multithreading;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream;
 
 public class RaceMenu {
 	
-	private static final int MIN_NUMBER_OF_RACERS = 3;
-	private static final int MAX_NUMBER_OF_RASERS = 10;
+	private static final int MIN_NUMBER_OF_RACERS = 2;
+	private static final int MAX_NUMBER_OF_RASERS = 20;
 	private static final int MIN_DISTANCE = 100;
 	private static final int MAX_DISTANCE = 3500;
 	private int numberOfRacers;
 	private int distance;
+	List<Racer> resultsTable;
 
 	public RaceMenu() {
 		this.numberOfRacers = MIN_NUMBER_OF_RACERS;
@@ -57,13 +60,22 @@ public class RaceMenu {
 	
 	public void startRace(InputOutput io) {
 		Racer[] racers = new Racer[numberOfRacers];
-		Racer.place = 0;	
+		resultsTable = new ArrayList<Racer>();
 		Racer.distance = distance;
 		Racer.startTime = Instant.now();
+		startingRacers(racers);
+		joiningRacers(racers);
+		printingResultTable();
+	}
+
+	private void startingRacers(Racer[] racers) {
 		IntStream.range(0, numberOfRacers).forEach(i -> {
-			racers[i] = new Racer(i + 1);
+			racers[i] = new Racer(i + 1, this);
 			racers[i].start();
 		});
+	}
+
+	private void joiningRacers(Racer[] racers) {
 		Arrays.stream(racers).forEach(racer -> {
 			try {
 				racer.join();
@@ -71,5 +83,18 @@ public class RaceMenu {
 				e.printStackTrace();
 			}
 		});
+	}
+
+	private void printingResultTable() {
+		IntStream.range(0, resultsTable.size())
+		.mapToObj(i -> toPrintedString(i))
+		.forEach(System.out::println);
+		
+	}
+	
+	private String toPrintedString(int index) {
+		Racer racer = resultsTable.get(index);
+		return String.format("%3d\t%7d\t\t%d", 
+				index + 1, racer.getRacerNumber(), racer.getRunningTime());
 	}
 }
