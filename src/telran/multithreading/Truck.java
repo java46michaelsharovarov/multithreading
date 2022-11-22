@@ -21,7 +21,7 @@ public class Truck extends Thread {
 		}
 	}
 	
-	synchronized static private void loadElevator2(int load) {		 
+	static private void loadElevator2(int load) {		 
 			synchronized (mutex) {
 				elevator2 += load;
 			}		
