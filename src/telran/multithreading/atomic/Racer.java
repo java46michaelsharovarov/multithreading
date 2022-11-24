@@ -28,7 +28,7 @@ public class Racer extends Thread {
 			}
 		});
 		assigningPlace();
-		race.setWinnerNumber(racerNumber);
+		race.winnerNumber.compareAndSet(0, racerNumber);
 	}
 
 	private void assigningPlace() {

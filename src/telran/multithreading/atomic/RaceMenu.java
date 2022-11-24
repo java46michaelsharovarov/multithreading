@@ -16,7 +16,7 @@ public class RaceMenu {
 	private int numberOfRacers;
 	private int distance;
 	List<Racer> resultsTable;
-	private AtomicInteger winnerNumber;
+	AtomicInteger winnerNumber;
 
 	public RaceMenu() {
 		this.numberOfRacers = MIN_NUMBER_OF_RACERS;
@@ -70,12 +70,6 @@ public class RaceMenu {
 		joiningRacers(racers);
 		printingResultTable();
 		System.out.printf("Congratulations to racer #%d (winner)!!!\n", winnerNumber.get());
-		checkWinner();
-	}
-
-	private void checkWinner() {
-		String res = resultsTable.get(0).getRacerNumber() == winnerNumber.get() ? "YES" : "NO";
-		System.out.printf("Check (is the winner equal to the winner in the table?) - %s\n", res);
 	}
 
 	private void startingRacers(Racer[] racers) {
@@ -107,8 +101,5 @@ public class RaceMenu {
 		return String.format("%3d\t%7d\t\t%d", 
 				index + 1, racer.getRacerNumber(), racer.getRunningTime());
 	}
-
-	public void setWinnerNumber(int racerNumber) {
-		winnerNumber.compareAndSet(0, racerNumber);
-	}
+	
 }

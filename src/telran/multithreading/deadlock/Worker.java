@@ -8,6 +8,11 @@ public class Worker extends Thread {
 
 	void f1() {
 		synchronized (resource1) {
+			try {
+				sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}	
 			synchronized (resource2) {
 				synchronized (resource3) {
 				}
@@ -16,35 +21,14 @@ public class Worker extends Thread {
 	}
 
 	void f2() {
-		synchronized (resource1) {
-			synchronized (resource3) {
+		synchronized (resource3) {
+			synchronized (resource1) {
 			}
 		}
 	}
 
-/**************** Solution with the addition of code ****************/		
 	void f3() {
-		synchronized (resource2) {
-			synchronized (resource3) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				synchronized (resource1) {
-				}			
-			}
-		}
-	}
-
-/******************** Solution with code change  ********************/	
-	void f4() {
-		synchronized (resource2) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}		
+		synchronized (resource2) {				
 			synchronized (resource1) {
 			}
 		}
@@ -56,7 +40,6 @@ public class Worker extends Thread {
 			f1();
 			f2();
 			f3();
-			f4();
 		}
 	}
 }
