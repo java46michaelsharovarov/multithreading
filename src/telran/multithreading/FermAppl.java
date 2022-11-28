@@ -9,8 +9,8 @@ import java.util.stream.IntStream;
 
 public class FermAppl {
 
-	private static final int N_TRUCKS = 2000;
-	private static final int N_LOADS = 5000;
+	private static final int N_TRUCKS = 4;
+	private static final int N_LOADS = 5_000_000;
 
 	public static void main(String[] args) {
 		Truck[] trucks = new Truck[N_TRUCKS];
@@ -20,13 +20,13 @@ public class FermAppl {
 			if(input == 3) {
 				break;
 			} 
-		    System.out.println("loading...");
-			startTrucks(trucks, input);			
+		    System.out.println("loading...");			
+			startTrucks(trucks, input);
 			waitigForFinishing(trucks);
 			printingResults(start);
 		}		
 	}
-
+	
 	private static void printingResults(Instant start) {
 		System.out.printf("Report: elevator1 contains %d tons; elevator2 contains %d tons"
 				+ "\nrunning time is %d\n", Truck.getElevator1(),
