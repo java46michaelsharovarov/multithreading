@@ -19,7 +19,12 @@ public class SenderReceiverAppl {
 		startReceivers(receivers, messageBox);
 		sender.start();
 		sender.join();
-		Thread.sleep(100);//FIXME
+		interruptingReceivers(receivers);
+	}
+
+	private static void interruptingReceivers(Receiver[] receivers) {
+		IntStream.range(0, N_RECEIVERS)
+		.forEach(i -> receivers[i].interrupt());		
 	}
 
 	private static void startReceivers(Receiver[] receivers, MessageBox messageBox) {
