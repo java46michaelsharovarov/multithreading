@@ -5,33 +5,42 @@ import java.util.concurrent.atomic.AtomicInteger;
 import telran.multithreading.MessageBox;
 
 public class Receiver extends Thread {
-
-	private MessageBox messageBox;
-	private static AtomicInteger messagesCounter = new AtomicInteger(0);
 	
+	private static AtomicInteger messagesCounter = new AtomicInteger(0);
+	private MessageBox messageBox;
+	private boolean running = true;
+
 	public Receiver(MessageBox messageBox) {
 		this.messageBox = messageBox;
 	}
-	
+
 	@Override
 	public void run() {
-		while(true) {
+		String message = null;
+		while (running) {
 			try {
-				String message = messageBox.get();
-				System.out.println(message + getName());
-				messagesCounter.incrementAndGet();
+				message = messageBox.take();
+				messageProcessing(message);
 			} catch (InterruptedException e) {
-				if(messageBox.take() != null) {
-					System.out.println(messageBox.take() + getName());
-					messagesCounter.incrementAndGet();
-				}
-				break;
+
 			}
+		}
+		while ((message = messageBox.poll()) != null) {
+			messageProcessing(message);
 		}
 	}
 
-	public static AtomicInteger getMessagesCounter() {
-		return messagesCounter;
+	private void messageProcessing(String message) {
+		messagesCounter.incrementAndGet();
+		System.out.println(message + getName());
 	}
-	
+
+	public static int getMessagesCounter() {
+		return messagesCounter.get();
+	}
+
+	public void setRunning(boolean running) {
+		this.running = running;
+	}
+
 }

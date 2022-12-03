@@ -1,51 +1,21 @@
 package telran.multithreading;
 
-import java.util.concurrent.locks.*;
+import java.util.concurrent.*;
 
 public class MessageBox {
-
-	private String message;
-	private Lock monitor = new ReentrantLock();
-	private Condition producerWaitingCondition = monitor.newCondition();
-	private Condition consumerWaitingCondition = monitor.newCondition();
+	
+	BlockingQueue<String> queue = new LinkedBlockingQueue<>(1000); // FIXME replace with MyBlockingQueueImpl
 
 	public void put(String message) throws InterruptedException {
-		monitor.lock();
-		try {
-			while (this.message != null) {
-				producerWaitingCondition.await();
-			}
-			this.message = message;
-			consumerWaitingCondition.signal();
-		} finally {
-			monitor.unlock();
-		}
-		
+		queue.put(message);
 	}
 
-	public String get() throws InterruptedException {
-		monitor.lock();
-		try {
-			while (message == null) {
-				consumerWaitingCondition.await();
-			}
-			String res = message;
-			message = null;
-			producerWaitingCondition.signal();
-			return res;
-		} finally {
-			monitor.unlock();
-		}
+	public String take() throws InterruptedException {
+		return queue.take();
 	}
-	
-	public String take() {
-		monitor.lock();
-		try {
-			return message;
-		} finally {
-			message = null;
-			monitor.unlock();
-		}
+
+	public String poll() {
+		return queue.poll();
 	}
-	
+
 }

@@ -9,7 +9,7 @@ import telran.multithreading.producer.Sender;
 public class SenderReceiverAppl {
 
 	private static final int N_RECEIVERS = 10;
-	private static final int N_MESSAGES = 1500;
+	private static final int N_MESSAGES = 20000;
 
 	public static void main(String[] args) throws InterruptedException {
 		
@@ -21,12 +21,8 @@ public class SenderReceiverAppl {
 		sender.start();
 		sender.join();
 		stopReceivers(receivers);
-		System.out.println(Receiver.getMessagesCounter());
-	}
-
-	private static void stopReceivers(Receiver[] receivers) {
-		Arrays.stream(receivers)
-		.forEach(r -> r.interrupt());		
+		waitReceivers(receivers);
+		System.out.println("number of the processed messages is " + Receiver.getMessagesCounter());
 	}
 
 	private static void startReceivers(Receiver[] receivers, MessageBox messageBox) {
@@ -34,6 +30,24 @@ public class SenderReceiverAppl {
 		.forEach(i -> {
 			receivers[i] = new Receiver(messageBox);
 			receivers[i].start();
+		});
+	}
+
+	private static void stopReceivers(Receiver[] receivers) {
+		Arrays.stream(receivers)
+		.forEach(r -> {
+			r.setRunning(false);
+			r.interrupt();
+		});		
+	}
+	
+	private static void waitReceivers(Receiver[] receivers) {
+		Arrays.stream(receivers).forEach(r -> {
+			try {
+				r.join();
+			} catch (InterruptedException e) {
+				
+			}
 		});
 	}
 	
