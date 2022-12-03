@@ -16,8 +16,8 @@ public class GarageImitatorAppl {
 	private static final int CAPCITY = 15;
 	static int rejectsCounter = 0;
 	static int carsCounter = 0;
-	static BlockingQueue<Car> cars = new LinkedBlockingQueue<>(CAPCITY); // FIXME replace with MyBlockingQueueImpl
-
+	static BlockingQueue<Car> cars = new MyBlockingQueueImpl<>(CAPCITY);
+	
 	public static void main(String[] args) throws InterruptedException {
 		
 		Worker workers[] = new Worker[N_WORKERS];

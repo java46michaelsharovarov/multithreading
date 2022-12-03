@@ -1,167 +1,354 @@
 package telran.multithreading;
 
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.*;
 
 public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
+
 	private List<E> queue = new LinkedList<>();
 	private int capacity;
-//TODO additional fields consider Lock, Condition 
+	private ReentrantLock mutex = new ReentrantLock();
+	private Condition producersWaitingCondition = mutex.newCondition();
+	private Condition consumersWaitingCondition = mutex.newCondition();
+
 	public MyBlockingQueueImpl(int capacity) {
 		this.capacity = capacity;
 	}
+
 	public MyBlockingQueueImpl() {
 		this(Integer.MAX_VALUE);
-	}
-	@Override
-	public E remove() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public E poll() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
 	public E element() {
-		// TODO Auto-generated method stub
-		return null;
+		mutex.lock();
+		try {
+			if (queue.isEmpty()) {
+				throw new NoSuchElementException();
+			}
+			return queue.get(0);
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public E peek() {
-		// TODO Auto-generated method stub
-		return null;
+		mutex.lock();
+		try {
+			return queue.isEmpty() ? null : queue.get(0);
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		mutex.lock();
+		try {
+			return queue.size();
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		mutex.lock();
+		try {
+			return queue.isEmpty();
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public Iterator<E> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ListIterator();
+	}
+
+	private class ListIterator implements Iterator<E> {
+		int next = 0;
+		boolean wasNext = false;
+		
+		@Override
+		public boolean hasNext() {
+			mutex.lock();
+			try {
+				return next < queue.size();
+			} finally {
+				mutex.unlock();
+			}
+		}
+	
+		@Override
+		public E next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			}
+			mutex.lock();
+			try {
+				wasNext = true;
+				return queue.get(next++);
+			} finally {
+				mutex.unlock();
+			}
+		}
+		
+		@Override
+		public void remove() {
+			if(!wasNext) {
+				throw new IllegalStateException();
+			}
+			mutex.lock();
+			try {
+				queue.remove(--next);
+				wasNext = false;
+			} finally {
+				mutex.unlock();
+			}
+		}		
 	}
 
 	@Override
 	public Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
+		mutex.lock();
+		try {
+			return queue.toArray();
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a) {
-		// TODO Auto-generated method stub
-		
-		return null;
+		mutex.lock();
+		try {
+			return queue.toArray(a);
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		//TODO
-		return false;
+		mutex.lock();
+		try {
+			return queue.containsAll(c);
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends E> c) {
-		// TODO Auto-generated method stub
-		return false;
+		mutex.lock();
+		try {
+			return queue.addAll(c);
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		mutex.lock();
+		try {
+			return queue.removeAll(c);
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		mutex.lock();
+		try {
+			return queue.retainAll(c);
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean add(E e) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean offer(E e) {
-		// TODO Auto-generated method stub
-		return false;
+		mutex.lock();
+		try {
+			queue.clear();
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public void put(E e) throws InterruptedException {
-		// TODO Auto-generated method stub
-
+		if (e == null) {
+			throw new IllegalArgumentException();
+		}
+		mutex.lock();
+		try {
+			while (queue.size() == capacity) {
+				producersWaitingCondition.await();
+			}
+			queue.add(e);
+			if (queue.size() == 1) {
+				consumersWaitingCondition.signal();
+			}
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-		// TODO Auto-generated method stub
+		if (e == null || timeout < 0) {
+			throw new IllegalArgumentException();
+		}
+		long nanos = unit.toNanos(timeout);
+		mutex.lock();
+		try {
+			while (queue.size() == capacity) {
+				if (nanos <= 0)
+					return false;
+				nanos = producersWaitingCondition.awaitNanos(nanos);
+			}
+			queue.add(e);
+			if (queue.size() == 1) {
+				consumersWaitingCondition.signal();
+			}
+			return true;
+		} finally {
+			mutex.unlock();
+		}
+	}
+
+	@Override
+	public boolean offer(E e) {
+		try {
+			return offer(e, 0, TimeUnit.NANOSECONDS);
+		} catch (InterruptedException exp) {
+
+		}
 		return false;
+	}
+
+	@Override
+	public boolean add(E e) {
+		mutex.lock();
+		try {
+			if (queue.size() == capacity) {
+				throw new IllegalStateException();
+			}
+			queue.add(e);
+			if (queue.size() == 1) {
+				consumersWaitingCondition.signal();
+			}
+			return true;
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public E take() throws InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
+		mutex.lock();
+		try {
+			while (queue.isEmpty()) {
+				consumersWaitingCondition.await();
+			}
+			if (queue.size() == capacity) {
+				producersWaitingCondition.signal();
+			}
+			return queue.remove(0);
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-		// TODO Auto-generated method stub
+		if (timeout < 0) {
+			throw new IllegalArgumentException();
+		}
+		long nanos = unit.toNanos(timeout);
+		mutex.lock();
+		try {
+			while (queue.size() == 0) {
+				if (nanos <= 0)
+					return null;
+				nanos = consumersWaitingCondition.awaitNanos(nanos);
+			}
+			if (queue.size() == capacity) {
+				producersWaitingCondition.signal();
+			}
+			return queue.remove(0);
+		} finally {
+			mutex.unlock();
+		}
+	}
+
+	@Override
+	public E poll() {
+		try {
+			return poll(0, TimeUnit.NANOSECONDS);
+		} catch (InterruptedException e) {
+
+		}
 		return null;
 	}
 
 	@Override
-	public int remainingCapacity() {
-		// TODO Auto-generated method stub
-		return 0;
+	public E remove() {
+		mutex.lock();
+		try {
+			if (queue.size() == 0) {
+				throw new NoSuchElementException();
+			}
+			if (queue.size() == capacity) {
+				producersWaitingCondition.signal();
+			}
+			return queue.remove(0);
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
-	public boolean remove(Object o) {
-		//No implement
-		return false;
+	public int remainingCapacity() {
+		mutex.lock();
+		try {
+			return capacity - queue.size();
+		} finally {
+			mutex.unlock();
+		}
 	}
 
 	@Override
 	public boolean contains(Object o) {
-		// TODO Auto-generated method stub
+		mutex.lock();
+		try {
+			return queue.contains(o);
+		} finally {
+			mutex.unlock();
+		}
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		// No implement
 		return false;
 	}
 
 	@Override
 	public int drainTo(Collection<? super E> c) {
-		//No implement
+		// No implement
 		return 0;
 	}
 
 	@Override
 	public int drainTo(Collection<? super E> c, int maxElements) {
-		//No implement
+		// No implement
 		return 0;
 	}
 }
