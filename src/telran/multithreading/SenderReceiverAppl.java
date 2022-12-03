@@ -1,5 +1,6 @@
 package telran.multithreading;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import telran.multithreading.consumer.Receiver;
@@ -19,13 +20,13 @@ public class SenderReceiverAppl {
 		startReceivers(receivers, messageBox);
 		sender.start();
 		sender.join();
-		interruptingReceivers(receivers);
+		stopReceivers(receivers);
 		System.out.println(Receiver.getMessagesCounter());
 	}
 
-	private static void interruptingReceivers(Receiver[] receivers) {
-		IntStream.range(0, N_RECEIVERS)
-		.forEach(i -> receivers[i].interrupt());		
+	private static void stopReceivers(Receiver[] receivers) {
+		Arrays.stream(receivers)
+		.forEach(r -> r.interrupt());		
 	}
 
 	private static void startReceivers(Receiver[] receivers, MessageBox messageBox) {
