@@ -65,50 +65,12 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 
 	@Override
 	public Iterator<E> iterator() {
-		return new ListIterator();
-	}
-
-	private class ListIterator implements Iterator<E> {
-		int next = 0;
-		boolean wasNext = false;
-		
-		@Override
-		public boolean hasNext() {
-			mutex.lock();
-			try {
-				return next < queue.size();
-			} finally {
-				mutex.unlock();
-			}
+		mutex.lock();
+		try {
+			return queue.iterator();
+		} finally {
+			mutex.unlock();
 		}
-	
-		@Override
-		public E next() {
-			if (!hasNext()) {
-				throw new NoSuchElementException();
-			}
-			mutex.lock();
-			try {
-				wasNext = true;
-				return queue.get(next++);
-			} finally {
-				mutex.unlock();
-			}
-		}
-		
-		@Override
-		public void remove() {
-			if(!wasNext) {
-				throw new IllegalStateException();
-			}
-			mutex.lock();
-			try {
-				queue.remove(--next);
-				wasNext = false;
-			} finally {
-				mutex.unlock();
-			}
-		}		
 	}
 
 	@Override
@@ -145,7 +107,9 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 	public boolean addAll(Collection<? extends E> c) {
 		mutex.lock();
 		try {
-			return queue.addAll(c);
+			int prevSize = size();
+			c.forEach(this::add);
+			return prevSize != size();
 		} finally {
 			mutex.unlock();
 		}
@@ -155,6 +119,9 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 	public boolean removeAll(Collection<?> c) {
 		mutex.lock();
 		try {
+			if (queue.size() == capacity) {
+				producersWaitingCondition.signal();
+			}
 			return queue.removeAll(c);
 		} finally {
 			mutex.unlock();
@@ -165,7 +132,11 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 	public boolean retainAll(Collection<?> c) {
 		mutex.lock();
 		try {
-			return queue.retainAll(c);
+			boolean res = queue.retainAll(c);
+			if (res) {
+				producersWaitingCondition.signal();
+			}
+			return res;
 		} finally {
 			mutex.unlock();
 		}
@@ -176,6 +147,7 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 		mutex.lock();
 		try {
 			queue.clear();
+			producersWaitingCondition.signal();
 		} finally {
 			mutex.unlock();
 		}
@@ -274,7 +246,7 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 		long nanos = unit.toNanos(timeout);
 		mutex.lock();
 		try {
-			while (queue.size() == 0) {
+			while (queue.isEmpty()) {
 				if (nanos <= 0)
 					return null;
 				nanos = consumersWaitingCondition.awaitNanos(nanos);
@@ -302,7 +274,7 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 	public E remove() {
 		mutex.lock();
 		try {
-			if (queue.size() == 0) {
+			if (queue.isEmpty()) {
 				throw new NoSuchElementException();
 			}
 			if (queue.size() == capacity) {
@@ -336,19 +308,16 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 
 	@Override
 	public boolean remove(Object o) {
-		// No implement
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public int drainTo(Collection<? super E> c) {
-		// No implement
-		return 0;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public int drainTo(Collection<? super E> c, int maxElements) {
-		// No implement
-		return 0;
+		throw new UnsupportedOperationException();
 	}
 }

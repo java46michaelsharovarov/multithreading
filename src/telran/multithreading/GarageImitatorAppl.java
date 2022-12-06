@@ -13,10 +13,10 @@ public class GarageImitatorAppl {
 	static final long MAX_SERVICE_TIME = 600;
 	static final int N_WORKERS = 30;
 	static final int PROB_CAR_MIN = 10;
-	private static final int CAPCITY = 15;
+	private static final int CAPACITY = 15;
 	static int rejectsCounter = 0;
 	static int carsCounter = 0;
-	static BlockingQueue<Car> cars = new MyBlockingQueueImpl<>(CAPCITY);
+	static BlockingQueue<Car> cars = new MyBlockingQueueImpl<>(CAPACITY);
 	
 	public static void main(String[] args) throws InterruptedException {
 		
