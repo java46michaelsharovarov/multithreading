@@ -32,6 +32,7 @@ public class ServerImitator extends Thread {
 		while ((request = queue.poll()) != null) {
 			executor.execute(request);
 		}
+		executor.shutdown();
 	}
 	
 }

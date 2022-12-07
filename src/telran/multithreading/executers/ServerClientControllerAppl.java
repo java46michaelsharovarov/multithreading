@@ -20,8 +20,11 @@ public class ServerClientControllerAppl {
 
 		server.executor.awaitTermination(10, TimeUnit.SECONDS);
 		List<Runnable> unprocessedRequests = server.executor.shutdownNow();
+		
+		server.executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
 
 		System.out.println("counter of the processed requests is " + Request.getRequestCounter());
+		System.out.println("counter of the cancelled requests is " + Request.getCancelledCounter());
 		System.out.println("counter of the unprocessed requests is " + unprocessedRequests.size());
 
 	}

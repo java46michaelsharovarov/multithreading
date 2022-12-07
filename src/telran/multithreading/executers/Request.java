@@ -6,6 +6,7 @@ public class Request implements Runnable {
 	
 	private long timeout;
 	static AtomicInteger requestCounter = new AtomicInteger(0);
+	static AtomicInteger cancelledCounter = new AtomicInteger(0);
 
 	public Request(long timeout) {
 		this.timeout = timeout;
@@ -21,8 +22,12 @@ public class Request implements Runnable {
 			Thread.sleep(timeout);
 			requestCounter.incrementAndGet();
 		} catch (InterruptedException e) {
-
+			cancelledCounter.incrementAndGet();
 		}
+	}
+
+	public static int getCancelledCounter() {
+		return cancelledCounter.get();
 	}
 
 }
