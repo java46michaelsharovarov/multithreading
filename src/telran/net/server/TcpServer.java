@@ -13,7 +13,7 @@ public class TcpServer implements Runnable {
 	private ApplProtocol protocol;
 	
 	private static final int NUMBER_OF_THREADS = 2;
-	public ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+	private ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
 	public TcpServer(int port, ApplProtocol protocol) throws Exception {
 		this.port = port;

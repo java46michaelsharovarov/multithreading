@@ -1,7 +1,7 @@
 package telran.multithreading.executer;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -23,19 +23,25 @@ public class NumberGroups {
 		this.numberOfThreads = numberOfThreads;
 	} 
 	
-	public long computeSum(){
-		ArrayList<OneGroupSum> array = new ArrayList<>();
+	public long computeSum() {
+		long startTime = System.currentTimeMillis();
 		ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-		
-		Arrays.stream(groups).forEach(g -> array.add(new OneGroupSum(g)));
-		array.stream().forEach(e -> executor.execute(e));
+		List<OneGroupSum> groupSums = Arrays.stream(groups)
+				.map(group -> new OneGroupSum(group)).toList();
+		groupSums.forEach(executor::execute);
+		waitingGroups(executor);
+		var res = groupSums.stream().mapToLong(OneGroupSum::getRes).sum();
+		System.out.printf("Runtime with %d threads is %d millis%n", numberOfThreads, System.currentTimeMillis() - startTime);
+		return res;
+	}
+	
+	private void waitingGroups(ExecutorService executor){
+		executor.shutdown();
 		try {
-			executor.shutdown();
-			executor.awaitTermination(10, TimeUnit.SECONDS);
+			executor.awaitTermination(10, TimeUnit.HOURS);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			throw new IllegalStateException();
 		}
-		return array.stream().mapToLong(e-> e.getRes()).sum(); 
 	}
 	
 }

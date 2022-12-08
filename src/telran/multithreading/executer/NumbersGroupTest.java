@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +25,7 @@ class NumbersGroupTest {
 	}
 	
 	@Test
-	void performanceTestDefaultNumberOfThreads() {
+	void performanceTestDefaultNumberOfThread() {
 		int[][] array = getGroups(NUMBER_OF_GROUPS, NUMBER_OF_NUMBERS_IN_GROUP);
 		NumberGroups numberGroups = new NumberGroups(array);
 		numberGroups.computeSum();
@@ -38,16 +40,42 @@ class NumbersGroupTest {
 	}
 	
 	@Test
+	void performanceTestFourThreads() {
+		int[][] array = getGroups(NUMBER_OF_GROUPS, NUMBER_OF_NUMBERS_IN_GROUP);
+		NumberGroups numberGroups = new NumberGroups(array);
+		numberGroups.setNumberOfThreads(4);
+		numberGroups.computeSum();
+	}
+	
+	@Test
 	void performanceTestTenThreads() {
 		int[][] array = getGroups(NUMBER_OF_GROUPS, NUMBER_OF_NUMBERS_IN_GROUP);
 		NumberGroups numberGroups = new NumberGroups(array);
 		numberGroups.setNumberOfThreads(10);
 		numberGroups.computeSum();
 	}
+
+	@Test
+	void performancefortyTenThreads() {
+		int[][] array = getGroups(NUMBER_OF_GROUPS, NUMBER_OF_NUMBERS_IN_GROUP);
+		NumberGroups numberGroups = new NumberGroups(array);
+		numberGroups.setNumberOfThreads(40);
+		numberGroups.computeSum();
+	}	
 	
+	/*** Filling in the created array ***/	
 	int[][] getGroups(int numberOfGroups, int numberOfNumbersInGroup) {
 		int[][] array = new int[numberOfGroups][numberOfNumbersInGroup];
 		Arrays.setAll(array, i -> new Random().ints(numberOfNumbersInGroup, MIN_NUMBER, MAX_NUMBER).toArray());
 		return array;
+	}
+	
+	int[][] getGroups1(int nGroups, int nNumbersInGroup) {
+		return Stream.generate(() -> getGroup(nNumbersInGroup))
+				.limit(nGroups).toArray(int[][]::new);
+	}
+	private int [] getGroup(int nNumbers) {
+		return Stream.generate(() -> ThreadLocalRandom.current().nextInt())
+				.limit(nNumbers).mapToInt(x->x).toArray();
 	}
 }
