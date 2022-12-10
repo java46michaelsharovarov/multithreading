@@ -1,23 +1,19 @@
 package telran.multithreading.executer;
 
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 
-public class OneGroupSum implements Runnable {
+public class OneGroupSum implements Callable<Long> {
 
 	private int[] group;
-	private long res;
 
 	public OneGroupSum(int[] group) {
 		this.group = group;
 	}
 
 	@Override
-	public void run() {
-		res = Arrays.stream(group).asLongStream().sum();
-	}
-
-	public long getRes() {
-		return res;
+	public Long call() {
+		return Arrays.stream(group).asLongStream().sum();
 	}
 
 }

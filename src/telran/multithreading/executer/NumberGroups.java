@@ -2,9 +2,10 @@ package telran.multithreading.executer;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 
 public class NumberGroups {
 
@@ -26,22 +27,17 @@ public class NumberGroups {
 	public long computeSum() {
 		long startTime = System.currentTimeMillis();
 		ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-		List<OneGroupSum> groupSums = Arrays.stream(groups)
-				.map(group -> new OneGroupSum(group)).toList();
-		groupSums.forEach(executor::execute);
-		waitingGroups(executor);
-		var res = groupSums.stream().mapToLong(OneGroupSum::getRes).sum();
+		List<Future<Long>> groupSums = Arrays.stream(groups).map(OneGroupSum::new)
+				.map(executor::submit).toList();
+		long res = groupSums.stream().mapToLong(future -> {
+			try {
+				return future.get();
+			} catch (InterruptedException | ExecutionException e) {
+				throw new IllegalStateException();
+			}
+		}).sum();
 		System.out.printf("Runtime with %d threads is %d millis%n", numberOfThreads, System.currentTimeMillis() - startTime);
 		return res;
 	}
-	
-	private void waitingGroups(ExecutorService executor){
-		executor.shutdown();
-		try {
-			executor.awaitTermination(10, TimeUnit.HOURS);
-		} catch (InterruptedException e) {
-			throw new IllegalStateException();
-		}
-	}
-	
+		
 }
