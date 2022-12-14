@@ -11,7 +11,7 @@ import java.io.*;
 public class ClientSessionHandler implements Runnable {
 
 	private static final int READ_TIMEOUT = 100;
-	private static final int CLIENT_TIMEOUT = 10000;
+	private static final int CLIENT_TIMEOUT = 30000;
 	private final Socket socket;
 	private ApplProtocol protocol;
 	private TcpServer tcpServer;
